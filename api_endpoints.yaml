@@ -1,0 +1,97 @@
+endpoints:
+  system/resource/cpu:
+    metrics:
+      - name: load
+      - name: disk
+      - name: irq
+    labels:
+      - name: cpu
+  interface:
+    metrics:
+      - name: fp-rx-byte
+      - name: fp-rx-packet
+      - name: fp-tx-byte
+      - name: fp-tx-packet
+      - name: rx-byte
+      - name: rx-drop
+      - name: rx-error
+      - name: rx-packet
+      - name: tx-byte
+      - name: tx-drop
+      - name: tx-error
+      - name: tx-packet
+      - name: tx-queue-drop
+    labels:
+      - name: name
+        prom_name: interface_name
+      - name: comment
+  ip/firewall/filter:
+    metrics:
+      - name: bytes
+      - name: packets
+    labels:
+      - name: .id
+        prom_name: rule_id
+      - name: chain
+      - name: comment
+      - name: log_prefix
+        prom_name: log_prefix
+  ip/firewall/nat:
+    metrics:
+      - name: bytes
+      - name: packets
+    labels:
+      - name: .id
+        prom_name: rule_id
+      - name: chain
+      - name: comment
+      - name: log_prefix
+        prom_name: log_prefix
+  ip/ipsec/policy:
+    metrics:
+      - name: ph2-count
+      - name: ph2-state
+        type: enum
+        enum:
+          - expired
+          - no-phase2
+          - established
+      - name: active
+        type: enum
+        enum:
+          - "true"
+          - "false"
+    labels:
+      - name: .id
+        prom_name: policy_id
+      - name: dst-address
+        prom_name: dst_address
+      - name: src-address
+        prom_name: src_address
+  ip/ipsec/statistics:
+    metrics:
+      - name: in-buffer-errors
+      - name: in-errors
+      - name: in-header-errors
+      - name: in-no-policies
+      - name: in-no-states
+      - name: in-policy-blocked
+      - name: in-policy-errors
+      - name: in-state-expired
+      - name: in-state-invalid
+      - name: in-state-mismatches
+      - name: in-state-mode-errors
+      - name: in-state-protocol-errors
+      - name: in-state-sequence-errors
+      - name: in-template-mismatches
+      - name: out-bundle-check-errors
+      - name: out-bundle-errors
+      - name: out-errors
+      - name: out-no-states
+      - name: out-policy-blocked
+      - name: out-policy-dead
+      - name: out-policy-errors
+      - name: out-state-expired
+      - name: out-state-mode-errors
+      - name: out-state-protocol-errors
+      - name: out-state-sequence-errors

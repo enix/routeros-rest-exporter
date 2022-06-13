@@ -1,0 +1,13 @@
+defaults:
+  username: prometheus
+  password: supersecurep4ssw0rd
+  port: 443
+  allow_insecure: false
+  timeout: 5
+targets:
+  - name: router-1.example.com
+    hostname: 198.51.100.1
+    tenant: customer1
+  - name: router-2.example.com
+    hostname: 198.51.100.2
+    tenant: customer2
