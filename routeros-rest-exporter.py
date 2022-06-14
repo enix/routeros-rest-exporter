@@ -15,25 +15,6 @@ from prometheus_client import Counter, Gauge, Enum
 
 PROM_PREFIX = "routeros_"  # Every metric name will be prefixed with this
 
-PROM_PORT = 9100  # TCP port where the HTTP server should listen
-
-HOST_LABELS = [  # Labels common to all metrics, extracted from the target
-    "hostname",
-    "name",
-    "tenant",
-]
-
-# Config parameters and metadata that can either be set at target-level, or in the defaults
-DEFAULTABLE_PARAMETERS = [
-    "username",
-    "password",
-    "port",
-    "allow_insecure",
-    "timeout",
-    "tenant",
-]
-
-INTERVAL = 300
 
 logging.basicConfig(stream=stdout)
 logger = logging.getLogger(__name__)
@@ -43,14 +24,6 @@ logger.setLevel(logging.INFO)
 def get_metric_prom_name(api_path, api_name):
     "From the API path, and the metric name inside the API, return a suitable name for Prometheus"
     return PROM_PREFIX + api_path.replace("/", "_") + "_" + api_name.replace("-", "_")
-
-
-def get_target_labels(target_definition):
-    "Extract host-level labels (hostname, tenant, etc) from a target definition dict."
-    target_labels = {}
-    for label in HOST_LABELS:
-        target_labels[label] = target_definition[label]
-    return target_labels
 
 
 def main():  # pylint: disable=missing-function-docstring
@@ -87,6 +60,23 @@ def main():  # pylint: disable=missing-function-docstring
     if endpoints is None:
         raise ValueError(f"API endpoints file {args.endpoints} is empty")
 
+    interval = int(config["global"]["interval"])
+    prom_port = int(config["global"]["listen_port"])
+    custom_host_labels = config["global"]["custom_host_labels"]
+
+    # These are the metadata (i.e. connection parameters, host labels, etc.) that can either be defined (in the config)
+    # in the defaults, or in each target
+    defaultable_parameters = [
+        "username",
+        "password",
+        "port",
+        "allow_insecure",
+        "timeout",
+    ] + custom_host_labels
+
+    # These are the host labels, i.e. what target metadata will be exposed to prometheus
+    host_labels = ["hostname", "name"] + custom_host_labels
+
     # Build target listing, with their connections params and metadata, filling defaults if needed
     targets = []
     for target_config in config["targets"]:
@@ -96,8 +86,9 @@ def main():  # pylint: disable=missing-function-docstring
         t["name"] = target_name
 
         t["hostname"] = target_config.get("hostname", target_name)
+
         try:
-            for parameter in DEFAULTABLE_PARAMETERS:
+            for parameter in defaultable_parameters:
                 if (value := target_config.get(parameter)) is None:
                     value = config["defaults"][parameter]
                     logger.debug(
@@ -133,24 +124,24 @@ def main():  # pylint: disable=missing-function-docstring
                 exported_metrics[metric_name] = Gauge(
                     metric_name,
                     f"Mikrotik RouterOS metric '{metric['name']}' under '{path}'",
-                    labelnames=HOST_LABELS + normalized_labels,
+                    labelnames=host_labels + normalized_labels,
                 )
             elif metric_type == "enum":
                 exported_metrics[metric_name] = Enum(
                     metric_name,
                     f"Mikrotik RouterOS metric '{metric['name']}' under '{path}'",
-                    labelnames=HOST_LABELS + normalized_labels,
+                    labelnames=host_labels + normalized_labels,
                     states=metric["enum"],
                 )
 
     # Add one to check for API reachability
     exported_metrics[PROM_PREFIX + "api_unreachable"] = Counter(
-        PROM_PREFIX + "api_unreachable", "Number of failed API requests", HOST_LABELS
+        PROM_PREFIX + "api_unreachable", "Number of failed API requests", host_labels
     )
 
     # Let's roll baby !
-    logger.info("Starting the HTTP server on port %s", PROM_PORT)
-    start_http_server(PROM_PORT)
+    logger.info("Starting the HTTP server on port %s", prom_port)
+    start_http_server(prom_port)
 
     # Fetch metrics from routers
     while True:
@@ -161,8 +152,10 @@ def main():  # pylint: disable=missing-function-docstring
 
             logger.info("Starting polling for %s", target["name"])
 
-            # Extract host-level labels
-            target_labels = get_target_labels(target)
+            # Extract host-level labels with their values
+            target_labels = {}
+            for label in host_labels:
+                target_labels[label] = target[label]
 
             # Prepare the request parameters
             auth = (target["username"], target["password"])
@@ -197,7 +190,7 @@ def main():  # pylint: disable=missing-function-docstring
                 # Loop through all the items (interfaces, cpus, firewall rules, etc)
                 for data in resp:
 
-                    # Extract labe values such as cpu names, comments, etc. depending on
+                    # Extract label values such as cpu names, comments, etc. depending on
                     # which API endpoint we are getting data from.
                     extracted_labels = target_labels.copy()
                     for label in endpoint.get("labels", []):
@@ -232,7 +225,7 @@ def main():  # pylint: disable=missing-function-docstring
 
         end_time = time()
         elapsed_time = int(end_time - start_time)
-        if (sleep_time := INTERVAL - elapsed_time) < 0:
+        if (sleep_time := interval - elapsed_time) < 0:
             sleep_time = 0
 
         logger.info(

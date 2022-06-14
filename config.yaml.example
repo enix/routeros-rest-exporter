@@ -1,3 +1,9 @@
+global:
+  listen_port: 9100
+  interval: 300
+  custom_host_labels:
+    - tenant
+    - role
 defaults:
   username: prometheus
   password: supersecurep4ssw0rd
@@ -8,6 +14,8 @@ targets:
   - name: router-1.example.com
     hostname: 198.51.100.1
     tenant: customer1
+    role: primary
   - name: router-2.example.com
     hostname: 198.51.100.2
     tenant: customer2
+    role: secondary
