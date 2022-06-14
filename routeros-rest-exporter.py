@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from sys import exc_info, stdout
 import logging
 
-from time import sleep
+from time import sleep, time
 import requests
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
@@ -154,6 +154,9 @@ def main():  # pylint: disable=missing-function-docstring
 
     # Fetch metrics from routers
     while True:
+
+        start_time = time()
+
         for target in targets:
 
             logger.info("Starting polling for %s", target["name"])
@@ -227,10 +230,17 @@ def main():  # pylint: disable=missing-function-docstring
 
             logger.info("Finished polling %s", target["name"])
 
+        end_time = time()
+        elapsed_time = int(end_time - start_time)
+        if (sleep_time := INTERVAL - elapsed_time) < 0:
+            sleep_time = 0
+
         logger.info(
-            "Polling finished for all devices, going to sleep for %s seconds", INTERVAL
+            "Polling finished for all devices. It took %s secs, so going to sleep for %s secs",
+            elapsed_time,
+            sleep_time,
         )
-        sleep(INTERVAL)
+        sleep(sleep_time)
 
 
 if __name__ == "__main__":
