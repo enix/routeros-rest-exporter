@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 from argparse import ArgumentParser
-from sys import exc_info, stdout
+import sys
 import logging
+from signal import signal, SIGTERM
 
 from time import sleep, time
 import requests
@@ -16,9 +17,14 @@ from prometheus_client import Counter, Gauge, Enum
 PROM_PREFIX = "routeros_"  # Every metric name will be prefixed with this
 
 
-logging.basicConfig(stream=stdout)
+logging.basicConfig(stream=sys.stdout)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+def terminate(*_):  # pylint: disable=missing-function-docstring
+    logger.info("Received SIGTERM, exiting.")
+    sys.exit(0)
 
 
 def get_metric_prom_name(api_path, api_name):
@@ -27,6 +33,8 @@ def get_metric_prom_name(api_path, api_name):
 
 
 def main():  # pylint: disable=missing-function-docstring
+    signal(SIGTERM, terminate)
+
     parser = ArgumentParser(
         description="Launch a Prometheus Exporter exposing metrics from Mikrotik RouterOS devices via their REST API."
     )
@@ -97,7 +105,7 @@ def main():  # pylint: disable=missing-function-docstring
                 t[parameter] = value
 
         except KeyError as exc:
-            _, exc_value, _ = exc_info()
+            _, exc_value, _ = sys.exc_info()
             raise ValueError(
                 f"You need to set the config attribute {exc_value}, on the target {target_name} or in the defaults"
             ) from exc
