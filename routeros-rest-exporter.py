@@ -142,6 +142,13 @@ def main():  # pylint: disable=missing-function-docstring
                     states=metric["enum"],
                 )
 
+    # This will hold each set of label:value PREVIOUSLY KNOWN for each metric. At each poll cycle, it will be compared
+    # with the retrieved label:value set, in order to remove the no-longer-valid ones.
+    # The goal is to clear metrics for removed FW rules, interfaces, etc.
+    # For now, initialize it with the metrics names. It is done before the initialization of "api_unreachable" by design
+    # so that it is never cleared.
+    labelsets_known = {key: [] for key in exported_metrics}
+
     # Add one to check for API reachability
     exported_metrics[PROM_PREFIX + "api_unreachable"] = Counter(
         PROM_PREFIX + "api_unreachable", "Number of failed API requests", host_labels
@@ -155,6 +162,9 @@ def main():  # pylint: disable=missing-function-docstring
     while True:
 
         start_time = time()
+
+        # Same as labelsets_known but will contain only labelsets retrived during this poll cycle
+        labelsets_current = {key: [] for key in exported_metrics}
 
         for target in targets:
 
@@ -228,8 +238,30 @@ def main():  # pylint: disable=missing-function-docstring
                             exported_metrics[metric_name].labels(
                                 **extracted_labels
                             ).state(value)
+                        labelsets_current[metric_name].append(extracted_labels)
 
             logger.info("Finished polling %s", target["name"])
+
+        # Compare labelsets retrieved during this cycle to labelsets already known
+
+        # First, check that each previously-known labelset is still valid. If not, clear it.
+        for metric_name, labelsets in labelsets_known.items():
+            for known_labelset in labelsets:
+                if known_labelset not in labelsets_current[metric_name]:
+                    logger.info(
+                        "Removing labelset %s for metric %s",
+                        known_labelset,
+                        metric_name,
+                    )
+                    # So long, Bowser !
+                    exported_metrics[metric_name].remove(*known_labelset.values())
+                    labelsets_known[metric_name].remove(known_labelset)
+
+        # Then, add the newly retrieved labelsets to the known ones for the next cycle
+        for metric_name, labelsets in labelsets_current.items():
+            for current_labelset in labelsets:
+                if current_labelset not in labelsets_known[metric_name]:
+                    labelsets_known[metric_name].append(current_labelset)
 
         end_time = time()
         elapsed_time = int(end_time - start_time)
