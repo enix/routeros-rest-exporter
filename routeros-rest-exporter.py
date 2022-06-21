@@ -206,7 +206,7 @@ def main():  # pylint: disable=missing-function-docstring
                     resp = [resp]
 
                 # Loop through all the items (interfaces, cpus, firewall rules, etc)
-                for data in resp:
+                for index, data in enumerate(resp):
 
                     # Extract label values such as cpu names, comments, etc. depending on
                     # which API endpoint we are getting data from.
@@ -214,8 +214,15 @@ def main():  # pylint: disable=missing-function-docstring
                     for label in endpoint.get("labels", []):
                         # If we have a label name more suitable for prom, use it
                         label_prom_name = label.get("prom_name", label["name"])
-                        # If the label value is not present in the API response, default to ""
-                        extracted_labels[label_prom_name] = data.get(label["name"], "")
+
+                        special = label.get("special")  # Is this a "meta-label" ?
+                        if special == "index":
+                            extracted_labels[label_prom_name] = index
+                        else:
+                            # If the label value is not present in the API response, default to ""
+                            extracted_labels[label_prom_name] = data.get(
+                                label["name"], ""
+                            )
 
                     # Extract metrics and update the corresponding prom Gauge
                     for metric in endpoint["metrics"]:

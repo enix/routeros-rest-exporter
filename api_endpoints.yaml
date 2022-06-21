@@ -36,6 +36,8 @@ endpoints:
       - name: comment
       - name: log-prefix
         prom_name: log_prefix
+      - name: order
+        special: index
   ip/firewall/nat:
     metrics:
       - name: bytes
@@ -47,6 +49,8 @@ endpoints:
       - name: comment
       - name: log-prefix
         prom_name: log_prefix
+      - name: order
+        special: index
   ip/ipsec/policy:
     metrics:
       - name: ph2-count
