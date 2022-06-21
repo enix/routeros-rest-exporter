@@ -34,7 +34,7 @@ endpoints:
         prom_name: rule_id
       - name: chain
       - name: comment
-      - name: log_prefix
+      - name: log-prefix
         prom_name: log_prefix
   ip/firewall/nat:
     metrics:
@@ -45,7 +45,7 @@ endpoints:
         prom_name: rule_id
       - name: chain
       - name: comment
-      - name: log_prefix
+      - name: log-prefix
         prom_name: log_prefix
   ip/ipsec/policy:
     metrics:
