@@ -33,6 +33,7 @@ endpoints:
       - name: .id
         prom_name: rule_id
       - name: chain
+      - name: action
       - name: comment
       - name: log-prefix
         prom_name: log_prefix
@@ -46,6 +47,7 @@ endpoints:
       - name: .id
         prom_name: rule_id
       - name: chain
+      - name: action
       - name: comment
       - name: log-prefix
         prom_name: log_prefix
