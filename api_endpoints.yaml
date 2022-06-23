@@ -57,16 +57,16 @@ endpoints:
     metrics:
       - name: ph2-count
       - name: ph2-state
-        type: enum
-        enum:
-          - expired
-          - no-phase2
-          - established
+        type: mapping
+        mapping:
+          established: 0
+          expired: 1
+          no-phase2: 2
       - name: active
-        type: enum
-        enum:
-          - "true"
-          - "false"
+        type: mapping
+        mapping:
+          "true": 0
+          "false": 1
     labels:
       - name: .id
         prom_name: policy_id

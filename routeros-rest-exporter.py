@@ -128,7 +128,7 @@ def main():  # pylint: disable=missing-function-docstring
             metric_name = get_metric_prom_name(path, metric["name"])
             metric_type = metric.get("type", "gauge")  # Default metric type is a Gauge
 
-            if metric_type == "gauge":
+            if metric_type == "gauge" or metric_type == "mapping":
                 exported_metrics[metric_name] = Gauge(
                     metric_name,
                     f"Mikrotik RouterOS metric '{metric['name']}' under '{path}'",
@@ -235,8 +235,8 @@ def main():  # pylint: disable=missing-function-docstring
                         if metric["name"] not in data:
                             continue
 
+                        # Magic happens here, update prometheus gauge or enum depending on the metric type :
                         value = data[metric["name"]]
-
                         if metric_type == "gauge":
                             exported_metrics[metric_name].labels(
                                 **extracted_labels
@@ -245,6 +245,21 @@ def main():  # pylint: disable=missing-function-docstring
                             exported_metrics[metric_name].labels(
                                 **extracted_labels
                             ).state(value)
+                        elif metric_type == "mapping":
+                            mapped_value = metric["mapping"].get(value)
+                            if mapped_value is None:
+                                logger.error(
+                                    "Unknown mapping for %s - %s from %s : got '%s' which is not in the mappings",
+                                    path,
+                                    metric["name"],
+                                    target["name"],
+                                    value,
+                                )
+                                continue
+                            exported_metrics[metric_name].labels(
+                                **extracted_labels
+                            ).set(mapped_value)
+
                         labelsets_current[metric_name].append(extracted_labels)
 
             logger.info("Finished polling %s", target["name"])
