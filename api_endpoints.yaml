@@ -6,6 +6,12 @@ endpoints:
       - name: irq
     labels:
       - name: cpu
+  system/resource:
+    metrics:
+      - name: free-hdd-space
+      - name: total-hdd-space
+      - name: free-memory
+      - name: total-memory
   interface:
     metrics:
       - name: fp-rx-byte
