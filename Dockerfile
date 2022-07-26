@@ -12,4 +12,5 @@ COPY ./* ./
 
 EXPOSE 9100/tcp
 
-CMD ["python", "/routeros-rest-exporter/routeros-rest-exporter.py", "-e", "/routeros-rest-exporter/api_endpoints.yaml", "-c", "/routeros-rest-exporter/config.yaml"]
+ENTRYPOINT ["python", "/routeros-rest-exporter/routeros-rest-exporter.py", "-e", "/routeros-rest-exporter/api_endpoints.yaml"]
+CMD ["-c", "/routeros-rest-exporter/config.yaml"]
