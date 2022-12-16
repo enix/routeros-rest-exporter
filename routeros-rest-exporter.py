@@ -76,6 +76,7 @@ def main():  # pylint: disable=missing-function-docstring
     # in the defaults, or in each target
     defaultable_parameters = [
         "username",
+        "password_file",
         "password",
         "port",
         "allow_insecure",
@@ -95,8 +96,8 @@ def main():  # pylint: disable=missing-function-docstring
 
         t["hostname"] = target_config.get("hostname", target_name)
 
-        try:
-            for parameter in defaultable_parameters:
+        for parameter in defaultable_parameters:
+            try:
                 if (value := target_config.get(parameter)) is None:
                     value = config["defaults"][parameter]
                     logger.debug(
@@ -104,11 +105,22 @@ def main():  # pylint: disable=missing-function-docstring
                     )
                 t[parameter] = value
 
-        except KeyError as exc:
-            _, exc_value, _ = sys.exc_info()
-            raise ValueError(
-                f"You need to set the config attribute {exc_value}, on the target {target_name} or in the defaults"
-            ) from exc
+            except KeyError as exc:
+                _, exc_value, _ = sys.exc_info()
+                if str(exc_value) not in ["'password'", "'password_file'"]:
+                    # Password and password file will be handled separately since one can be unset if the other is set
+                    raise ValueError(
+                        f"You need to set the config attribute {exc_value}, on the target {target_name} or in the defaults"
+                    ) from exc
+
+        if "password" not in t:
+            if "password_file" in t:
+                with open(t["password_file"], "r", encoding="utf-8") as file:
+                    t["password"] = file.read().splitlines()[0]
+            else:
+                raise ValueError(
+                    f'You need to set either the config attributes "password" or "password_file", on the target {target_name} or in the defaults'
+                )
 
         targets.append(t)
 
