@@ -1,0 +1,13 @@
+name: Automated Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  automated-build:
+    uses: jpetazzo/workflows/.github/workflows/automated-build.yaml@main
+    secrets:
+      DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
