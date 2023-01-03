@@ -1,5 +1,3 @@
-# Push to docker-registry.enix.io/docker/routeros-rest-exporter
-
 FROM python:3
 
 RUN mkdir /routeros-rest-exporter

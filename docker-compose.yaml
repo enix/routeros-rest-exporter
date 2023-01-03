@@ -3,6 +3,5 @@ services:
 
   routeros-rest-exporter:
     build: .
-    image: docker-registry.enix.io/docker/routeros-rest-exporter
     ports:
       - 9100:9100
