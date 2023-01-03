@@ -42,19 +42,19 @@ defaults:
 targets:  # List of Mikrotik RouterOS devices to query
   - name: router-1.example.com  # Name of the device
     hostname: 198.51.100.1  # IP or hostname to connect to. If absent, `name` will be used
-    tenant: customer1  # Value of the custom_host_label `tenant`
-    role: primary  # Value of the custom_host_label `role`
+    tenant: customer1  # Value of the custom host-level label `tenant`
+    role: primary  # Value of the custom host-level label `role`
 ```
 
 ### Defaults
 
 The following parameters can be defined at target level or in the `defaults` section :
-  - username
-  - password
-  - password_file
-  - port
-  - allow_insecure
-  - timeout
+  - `username`
+  - `password`
+  - `password_file`
+  - `port`
+  - `allow_insecure`
+  - `timeout`
 
 They are all mandatory.
 
@@ -232,4 +232,6 @@ This label is not derived from the API response's values, but the position of th
 
 ## Using docker
 
-You can build and run a docker image of this exporter using the provided dockerfile and docker-compose file. By default, it will use the `api_endpoints.yaml` that is present in the repository. You may also create a `config.yaml` file at the root of the repository if you want to embed the config into the image. Currently, the exporter cannot be configured using environment variables. 
+You can build and run a docker image of this exporter using the provided dockerfile and docker-compose file. By default, it will use the `api_endpoints.yaml` that is present in the repository. You may also create a `config.yaml` file at the root of the repository if you want to embed the config into the image. If you do not, you will have to provide a configuration file with another mechanisme (e.g. a Kubernetes configmap).
+
+Currently, the exporter cannot be configured using environment variables. 
