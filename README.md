@@ -104,7 +104,7 @@ system/resource/cpu:  # RouterOS REST API HTTP endpoint
 
 Here is an exemple of the corresponding REST API response from a RouterOS device :
 
-```json
+```
 [{'.id': '*0', 'cpu': 'cpu0', 'disk': '0', 'irq': '31', 'load': '31'},
  {'.id': '*1', 'cpu': 'cpu1', 'disk': '0', 'irq': '30', 'load': '33'}]
 ```
