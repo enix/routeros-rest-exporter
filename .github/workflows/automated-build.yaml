@@ -8,6 +8,6 @@ on:
 
 jobs:
   automated-build:
-    uses: b-abadie/workflows-jpetazzo/.github/workflows/automated-build.yaml@main
+    uses: b-abadie/test/.github/workflows/automated-build.yaml@main
     secrets:
       DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
