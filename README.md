@@ -5,6 +5,14 @@
 
 A Prometheus exporter for Mikrotik's RouterOS that uses the recent REST API and can be easily extended to support more metrics.
 
+## How does this compare to other Mikrotik RouterOS exporters ?
+
+Unlike other exporters available, this exporter allows you to easily customize which data are queried on the target, and thus exported to Promeheus.
+
+The goal is to cover specific use-cases where you need an obscure metric, and to reduce the load on routers by allowing you to remove unneeded queries.
+
+Additionnaly, this exporter uses the more recent REST API and not Mikrotik's custom binary API. Therefore, the code do not depends on any client library other than Python's well-known `requests` to query a target.
+
 ## Usage
 
 ```
@@ -125,7 +133,15 @@ routeros_system_resource_cpu_irq{cpu="cpu0",hostname="198.51.100.1",name="router
 routeros_system_resource_cpu_irq{cpu="cpu1",hostname="198.51.100.1",name="router-1.example.com",role="primary",tenant="customer1"} 33.0
 ```
 
+You can easily see how an API response looks like by starting a Python shell and querying a target like this :
+
+```python
+import requests; requests.get("https://198.51.100.1:443/rest/system/resource/cpu", auth=('user','pass'), verify=False, timeout=5).json()
+```
+
 Single-item API endpoints (such as `ip/ipsec/statistics`), i.e. response that do not take the form of a list (list of CPUs, list of interfaces...), are automatically handled. Internally, they are converted to a list with a single item. Metric-level labels may not be appropriate for these metrics since there is nothing to discriminate.
+
+You can get more information on RouterOS' REST API in the [documentation](https://help.mikrotik.com/docs/display/ROS/REST+API).
 
 ### Metric types
 
