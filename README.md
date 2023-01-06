@@ -230,6 +230,10 @@ ip/firewall/filter:
 
 This label is not derived from the API response's values, but the position of the item in the returned list. In this `ip/firewall/filter` example, it is used to denote the order of each firewalling rule (unfortunately, `.id` is not useful in this matter) as they are presented by the API (and as they are evaluated by RouterOS).
 
+### API reachability metric
+
+This exporter also generate one metric, `routeros_api_unreachable`, which is a counter of each time an HTTPS query was unsuccessful (regardless of the reason) on the target.
+
 ## Using docker
 
 You can build and run a docker image of this exporter using the provided dockerfile and docker-compose file. By default, it will use the `api_endpoints.yaml` that is present in the repository. You may also create a `config.yaml` file at the root of the repository if you want to embed the config into the image. If you do not, you will have to provide a configuration file with another mechanisme (e.g. a Kubernetes configmap).
