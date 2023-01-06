@@ -236,6 +236,25 @@ This exporter also generate one metric, `routeros_api_unreachable`, which is a c
 
 ## Using docker
 
-You can build and run a docker image of this exporter using the provided dockerfile and docker-compose file. By default, it will use the `api_endpoints.yaml` that is present in the repository. You may also create a `config.yaml` file at the root of the repository if you want to embed the config into the image. If you do not, you will have to provide a configuration file with another mechanisme (e.g. a Kubernetes configmap).
+### Building an image
 
-Currently, the exporter cannot be configured using environment variables. 
+You can build and run a docker image of this exporter using the provided dockerfile. It will embed the `api_endpoints.yaml` present in the repository. You may also create a `config.yaml` file at the root of the repository if you want to embed a config into the image. Alternatively, you can provide a configuration file with another mechanisme (e.g. bind mount, Kubernetes configmap, etc.).
+
+### Using automatically built images
+
+Images available on the Docker Hub (`enix/routeros-rest-exporter`) and on Github Container Registry (`ghcr.io/enix/routeros-rest-exporter`) are autmatically built on each tagged version of this repository. They use the provided `api_endpoints.yaml` but do not embed any configuration.
+
+To run it, you can use the provided `docker-compose.yaml` file, which mounts a `config.yaml` it expects to find alongside itself.
+
+To start the latest version of the exporter in the background and immediately start displaying its log output :
+```
+docker compose pull
+docker compose up -d && docker compose logs -f
+```
+
+To stop it :
+```
+docker compose down
+```
+
+Currently, the exporter cannot be configured using environment variables.
