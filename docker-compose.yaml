@@ -2,6 +2,8 @@ version: "3.7"
 services:
 
   routeros-rest-exporter:
-    build: .
+    image: enix/routeros-rest-exporter
     ports:
       - 9100:9100
+    volumes:
+      - ${PWD}/config.yaml:/routeros-rest-exporter/config.yaml
