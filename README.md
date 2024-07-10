@@ -11,7 +11,7 @@ Unlike other exporters available, this exporter allows you to easily customize w
 
 The goal is to cover specific use-cases where you need an obscure metric, and to reduce the load on routers by allowing you to remove unneeded queries.
 
-Additionnaly, this exporter uses the more recent REST API and not Mikrotik's custom binary API. Therefore, the code do not depends on any client library other than Python's well-known `requests` to query a target.
+Additionnaly, this exporter uses the more recent REST API and not Mikrotik's custom binary API. Therefore, the code does not depend on any client library other than Python's well-known `requests` to query a target.
 
 ## Usage
 
