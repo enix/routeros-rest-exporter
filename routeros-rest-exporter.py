@@ -29,7 +29,7 @@ def terminate(*_):  # pylint: disable=missing-function-docstring
 
 def get_metric_prom_name(api_path, api_name):
     "From the API path, and the metric name inside the API, return a suitable name for Prometheus"
-    return PROM_PREFIX + api_path.replace("/", "_") + "_" + api_name.replace("-", "_")
+    return PROM_PREFIX + api_path.replace("/", "_").replace("-", "_") + "_" + api_name.replace("-", "_")
 
 
 def main():  # pylint: disable=missing-function-docstring
